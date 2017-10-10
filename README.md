@@ -26,7 +26,7 @@ If you want to write some other aws service auth you can refer core code:
 
 ```
 	.....
-	
+
 	switch *Type {
 	case "aws-es":
 		AwsConfig.AwsService = "es"    //   Just Modify here
@@ -36,13 +36,15 @@ If you want to write some other aws service auth you can refer core code:
 	}
 	AwsConfig.AwsID = *Key
 	AwsConfig.AwsKey = *Secret
-   
-	....
 	
+	.....
+
 	req.ParseForm()
-    amzdate, authorization_header := AwsAuthSignature(AwsConfig, getURIPath(req.URL), req.Method, req.URL.Host, req.Form, buf)
-    req.Header.Set("X-Amz-Date", amzdate)
-    req.Header.Set("Authorization", authorization_header)
+	amzdate, authorization_header := AwsAuthSignature(AwsConfig, getURIPath(req.URL), req.Method, req.URL.Host, req.Form, buf)
+	req.Header.Set("X-Amz-Date", amzdate)
+	req.Header.Set("Authorization", authorization_header)
+	
+	.....
 
 ```
 
