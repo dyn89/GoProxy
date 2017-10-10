@@ -1,22 +1,52 @@
-# GoProxy 反向代理:中间人接力
+# Reverse Proxy: Use For AWS IAM/v4 Auth
 
-程序自包含, 只使用到官方库
+The program itself contains only the official library
 
-# 用户手册
+# How to Use?
 
-无认证模式:
+1.No authentication proxy way:
 
 ```
 proxy_amd64 --remote=http://www.zhihu.com --local=127.0.0.1:8889--auth=no
 ```
 
-亚马逊认证模式:
+2.AWS authentication proxy way:
 
 ```
 proxy_amd64 --access-key=1213 --secret-key=131312 --remote=https://search-asdsaddsa.us-east-1.es.amazonaws.com  --local=127.0.0.1:8888
 ```
 
-参数:
+Then you can have a try:
+
+```
+curl 127.0.0.1:8888
+```
+
+If you want to write some other aws service auth you can refer core code:
+
+```
+	.....
+	
+	switch *Type {
+	case "aws-es":
+		AwsConfig.AwsService = "es"    //   Just Modify here
+		AwsConfig.AwsRegion = *AWSRegion  // Just Modify here
+	default:
+		break
+	}
+	AwsConfig.AwsID = *Key
+	AwsConfig.AwsKey = *Secret
+   
+	....
+	
+	req.ParseForm()
+    amzdate, authorization_header := AwsAuthSignature(AwsConfig, getURIPath(req.URL), req.Method, req.URL.Host, req.Form, buf)
+    req.Header.Set("X-Amz-Date", amzdate)
+    req.Header.Set("Authorization", authorization_header)
+
+```
+
+Parm:
 
 ```
   -access-key string
@@ -33,9 +63,11 @@ proxy_amd64 --access-key=1213 --secret-key=131312 --remote=https://search-asdsad
         秘钥
 ```
 
-# 编译
+# How to Make Executable File?
 
-安装Golang环境
+Install Golang and `git clone https://github.com/hunterhug/GoProxy`
+
+Then do this:
 
 ```
 ./build.sh

@@ -1,6 +1,6 @@
 /*
    Created by jinhan on 17-10-10.
-   Tip:  反向代理,可以中间人攻击
+   Tip:  Reverse Proxy: Use For AWS IAM/v4 Auth
    Update:
 */
 package main
@@ -226,7 +226,7 @@ func getURIPath(u *url.URL) string {
 		uri = "/"
 	}
 
-	uri = strings.Replace(uri, "*", "%2A", -1)
+	uri = strings.Replace(uri, "*", "%2A", -1)  // Here very dangerous
 	return uri
 }
 
