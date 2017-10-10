@@ -135,11 +135,12 @@ func NewAWSReverseProxy(target *url.URL) *httputil.ReverseProxy {
 		} else {
 			req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
 		}
+
 		if _, ok := req.Header["User-Agent"]; !ok {
 			req.Header.Set("User-Agent", "")
 		}
 
-		fmt.Printf("%#v\n", req.URL)
+		fmt.Printf("URL: %#v\n", req.URL)
 
 		ref := req.Header.Get("Referer")
 
@@ -161,8 +162,8 @@ func NewAWSReverseProxy(target *url.URL) *httputil.ReverseProxy {
 		case "aws-es":
 			// 在此验证
 			req.ParseForm()
-			fmt.Println(AwsConfig, req.URL.Path, req.Method, req.URL.Host, req.Form)
-			amzdate, authorization_header := AwsAuthSignature(AwsConfig, req.URL.Path, req.Method, req.URL.Host, req.Form, buf)
+			//fmt.Println(AwsConfig, req.URL.Path, req.Method, req.URL.Host, req.Form)
+			amzdate, authorization_header := AwsAuthSignature(AwsConfig, getURIPath(req.URL), req.Method, req.URL.Host, req.Form, buf)
 			req.Header.Set("X-Amz-Date", amzdate)
 			req.Header.Set("Authorization", authorization_header)
 		default:
@@ -210,6 +211,23 @@ func NewAWSReverseProxy(target *url.URL) *httputil.ReverseProxy {
 	}
 
 	return &httputil.ReverseProxy{Director: director, ModifyResponse: modify}
+}
+
+func getURIPath(u *url.URL) string {
+	var uri string
+
+	if len(u.Opaque) > 0 {
+		uri = "/" + strings.Join(strings.Split(u.Opaque, "/")[3:], "/")
+	} else {
+		uri = u.EscapedPath()
+	}
+
+	if len(uri) == 0 {
+		uri = "/"
+	}
+
+	uri = strings.Replace(uri, "*", "%2A", -1)
+	return uri
 }
 
 func singleJoiningSlash(a, b string) string {
@@ -264,7 +282,7 @@ func AwsAuthSignature(auth AwsAuth, uri, method, host string, query url.Values, 
 		sort.Strings(temp)
 		temp1 := []string{}
 		for _, v := range temp {
-			temp1 = append(temp1, v+"="+url.QueryEscape(query.Get(v)))
+			temp1 = append(temp1, url.QueryEscape(v)+"="+url.QueryEscape(query.Get(v)))
 		}
 		request_parameters = strings.Join(temp1, "&")
 	}
@@ -285,6 +303,7 @@ func AwsAuthSignature(auth AwsAuth, uri, method, host string, query url.Values, 
 	}
 
 	canonical_request := method + "\n" + canonical_uri + "\n" + canonical_querystring + "\n" + canonical_headers + "\n" + signed_headers + "\n" + payload_hash
+	//fmt.Printf("%q\n", canonical_request)
 	algorithm := "AWS4-HMAC-SHA256"
 
 	credential_scope := datestamp + "/" + region + "/" + service + "/" + "aws4_request"
@@ -315,3 +334,4 @@ func getSha256Code(s string) []byte {
 	h.Write([]byte(s))
 	return h.Sum(nil)
 }
+
