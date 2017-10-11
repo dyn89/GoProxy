@@ -34,7 +34,7 @@ type handle struct {
 }
 
 var (
-	Version   = "v1.1"
+	Version   = "v1.0"
 	Key       = flag.String("access-key", "", "access key")
 	Secret    = flag.String("secret-key", "", "secret key")
 	Remote    = flag.String("remote", "", "remote web such as http://www.google.com(must have http)")
