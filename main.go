@@ -26,8 +26,6 @@ import (
 	"time"
 )
 
-var Proxy *handle
-
 type handle struct {
 	Https bool
 	host  string
@@ -36,13 +34,15 @@ type handle struct {
 }
 
 var (
-	Key       = flag.String("access-key", "", "公钥")
-	Secret    = flag.String("secret-key", "", "秘钥")
-	Remote    = flag.String("remote", "", "代理网站")
-	Local     = flag.String("local", "0.0.0.0:8888", "本地监听")
-	Type      = flag.String("auth", "aws-es", "认证模式: aws-es|no")
-	AWSRegion = flag.String("awsregion", "us-east-1", "aws区域")
+	Version   = "v1.1"
+	Key       = flag.String("access-key", "", "access key")
+	Secret    = flag.String("secret-key", "", "secret key")
+	Remote    = flag.String("remote", "", "remote web such as http://www.google.com(must have http)")
+	Local     = flag.String("local", "0.0.0.0:8888", "local proxy address")
+	Type      = flag.String("auth", "aws-es", "auth way: aws-es|no")
+	AWSRegion = flag.String("aws-region", "us-east-1", "aws region(onlu valid in aws auth way)")
 	AwsConfig = AwsAuth{}
+	Proxy     *handle
 )
 
 func init() {
@@ -64,6 +64,7 @@ func init() {
 }
 
 func main() {
+	fmt.Printf("Reverse Proxy %s Start\nRep: https://github.com/hunterhug/GoProxy \n------------------\n", Version)
 	startServer()
 }
 
@@ -108,7 +109,10 @@ func startServer() {
 		Proxy.Https = true
 	}
 
-	fmt.Printf("%v\n", Proxy)
+	fmt.Printf("Use HTTPS: %v\n", Proxy.Https)
+	fmt.Printf("Remote WEB: %v\n", Proxy.host+":"+Proxy.port)
+	fmt.Printf("Local Proxy: %v\n", Proxy.local)
+	fmt.Printf("------------------\njust curl %v\n------------------\n", Proxy.local)
 	err := http.ListenAndServe(Proxy.local, Proxy)
 	if err != nil {
 		log.Fatalln("ListenAndServe: ", err)
@@ -163,7 +167,7 @@ func NewAWSReverseProxy(target *url.URL) *httputil.ReverseProxy {
 			// 在此验证
 			req.ParseForm()
 			//fmt.Println(AwsConfig, req.URL.Path, req.Method, req.URL.Host, req.Form)
-			amzdate, authorization_header := AwsAuthSignature(AwsConfig, getURIPath(req.URL), req.Method, req.URL.Host, req.Form, buf)
+			amzdate, authorization_header := AwsAuthSignature(AwsConfig, UriEncode(req.URL.Path, true), req.Method, req.URL.Host, req.Form, buf)
 			req.Header.Set("X-Amz-Date", amzdate)
 			req.Header.Set("Authorization", authorization_header)
 		default:
@@ -211,23 +215,6 @@ func NewAWSReverseProxy(target *url.URL) *httputil.ReverseProxy {
 	}
 
 	return &httputil.ReverseProxy{Director: director, ModifyResponse: modify}
-}
-
-func getURIPath(u *url.URL) string {
-	var uri string
-
-	if len(u.Opaque) > 0 {
-		uri = "/" + strings.Join(strings.Split(u.Opaque, "/")[3:], "/")
-	} else {
-		uri = u.EscapedPath()
-	}
-
-	if len(uri) == 0 {
-		uri = "/"
-	}
-
-	uri = strings.Replace(uri, "*", "%2A", -1)  // Here very dangerous
-	return uri
 }
 
 func singleJoiningSlash(a, b string) string {
@@ -282,7 +269,7 @@ func AwsAuthSignature(auth AwsAuth, uri, method, host string, query url.Values, 
 		sort.Strings(temp)
 		temp1 := []string{}
 		for _, v := range temp {
-			temp1 = append(temp1, url.QueryEscape(v)+"="+url.QueryEscape(query.Get(v)))
+			temp1 = append(temp1, UriEncode(v, false)+"="+UriEncode(query.Get(v), false))
 		}
 		request_parameters = strings.Join(temp1, "&")
 	}
@@ -335,3 +322,15 @@ func getSha256Code(s string) []byte {
 	return h.Sum(nil)
 }
 
+func UriEncode(src string, encodeSlash bool) string {
+	// application/x-www-form-urlencoded will have +
+	back := url.QueryEscape(src)
+	// all change but + must replace, RFC3986
+	temp := strings.Replace(back, "+", "%20", -1)
+
+	// uri / must be keep
+	if encodeSlash {
+		return strings.Replace(temp, "%2F", "/", -1)
+	}
+	return temp
+}

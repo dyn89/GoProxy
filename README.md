@@ -7,7 +7,7 @@ The program itself contains only the official library
 1.No authentication proxy way:
 
 ```
-proxy_amd64 --remote=http://www.zhihu.com --local=127.0.0.1:8889--auth=no
+proxy_amd64 --remote=http://www.zhihu.com --local=127.0.0.1:8889 --auth=no
 ```
 
 2.AWS authentication proxy way:
@@ -48,21 +48,21 @@ If you want to write some other aws service auth you can refer core code:
 
 ```
 
-Parm:
+Usage of proxy_amd64:
 
 ```
   -access-key string
-        公钥
+        access key
   -auth string
-        认证模式: aws-es|no (default "aws-es")
-  -awsregion string
-        aws区域 (default "us-east-1")
+        auth way: aws-es|no (default "aws-es")
+  -aws-region string
+        aws region(onlu valid in aws auth way) (default "us-east-1")
   -local string
-        本地监听 (default "0.0.0.0:8888")
+        local proxy address (default "0.0.0.0:8888")
   -remote string
-        代理网站
+        remote web such as http://www.google.com(must have http)
   -secret-key string
-        秘钥
+        secret key
 ```
 
 # How to Make Executable File?
@@ -74,3 +74,5 @@ Then do this:
 ```
 ./build.sh
 ```
+
+You can download in [https://github.com/hunterhug/GoProxy/releases](https://github.com/hunterhug/GoProxy/releases)
