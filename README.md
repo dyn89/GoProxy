@@ -7,13 +7,13 @@ The program itself contains only the official library
 1.No authentication proxy way:
 
 ```
-proxy_amd64 --remote=http://www.zhihu.com --local=127.0.0.1:8889 --auth=no
+proxyamd64 --remote=http://www.zhihu.com --local=127.0.0.1:8889 --auth=no
 ```
 
 2.AWS authentication proxy way:
 
 ```
-proxy_amd64 --access-key=1213 --secret-key=131312 --remote=https://search-asdsaddsa.us-east-1.es.amazonaws.com  --local=127.0.0.1:8888
+proxyamd64 --access-key=1213 --secret-key=131312 --remote=https://search-asdsaddsa.us-east-1.es.amazonaws.com  --local=127.0.0.1:8888
 ```
 
 Then you can have a try:
@@ -48,7 +48,7 @@ If you want to write some other aws service auth you can refer core code:
 
 ```
 
-Usage of proxy_amd64:
+Usage of proxyamd64:
 
 ```
   -access-key string
