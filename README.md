@@ -2,6 +2,31 @@
 
 The program itself contains only the official library
 
+# What is Reverse Proxy?
+
+We have some machine(clint want to visit server):
+
+1. Client Machine(CM)
+2. Proxy Machine(PM)
+3. Server Machine(SM)
+
+Proxy way such as: `CM --> PM ---> SM`, And Forward Proxy: `** ---> PM --> SM`, PM hide the CM (e.g. our http/http/socks proxy).
+Reverse Proxy: `CM ---> PM --> **`, PM hide the SM (e.g. our nginx/haprxoy load balancing)
+
+A story:
+
+```
+Li Lei commissioned you to borrow money from Han Meimei. Han Meimei lent you $500, but Han Meimei didn't know it was Li Lei's. you were the Forward Proxy.
+
+Li Lei want to borrow money from you , Han Meimei lent you $500, you lent to Li Lei, but Li Lei didn't know that money is Han Meimei's, you are the Reverse Proxy.
+
+Chinese:
+
+李雷委托你跟韩梅梅借钱, 韩梅梅借给你500刀,但是韩梅梅不知道是李雷借的, 你是正向代理.
+
+李雷和你借钱, 韩梅梅给了你500刀, 你借给了李雷, 但是李雷不知道钱是韩梅梅的, 你是反向代理.
+```
+
 # How to Use?
 
 1.No authentication proxy way:
